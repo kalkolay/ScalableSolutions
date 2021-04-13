@@ -3,7 +3,11 @@ project(ScalableSolutions)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(SOURCE_FILES main.cpp)
-add_executable(ScalableSolutions ${SOURCE_FILES})
+add_executable(ScalableSolutions main.cpp)
 
 include_directories(OrderBook)
+
+add_subdirectory(OrderBook)
+add_subdirectory(OrderBookTests)
+
+target_link_libraries(ScalableSolutions OrderBook)
