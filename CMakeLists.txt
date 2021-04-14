@@ -3,11 +3,12 @@ project(ScalableSolutions)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(ScalableSolutions main.cpp)
+find_package(Boost REQUIRED)
+if (NOT Boost_FOUND)
+    message(FATAL_ERROR "Could not find Boost!")
+endif()
 
 include_directories(OrderBook)
 
 add_subdirectory(OrderBook)
 add_subdirectory(OrderBookTests)
-
-target_link_libraries(ScalableSolutions OrderBook)

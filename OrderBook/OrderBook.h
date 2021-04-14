@@ -1,10 +1,15 @@
 #pragma once
 
+#include <map>
+#include <boost/optional.hpp>
+
 class OrderBook
 {
 public:
 
 
-private:
+    bool isEmpty() const;
 
+private:
+    std::map<int, int> _asks, _bids;
 };
