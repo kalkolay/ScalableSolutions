@@ -1,6 +1,9 @@
 #include "OrderBook.h"
 #include "NotFoundException.h"
 
+#include <iomanip>
+#include <sstream>
+
 uint64_t Order::_nextId = 0;
 
 OrderBook::OrderBook(OrderCallback executedOrderCallback,
@@ -73,7 +76,7 @@ bool OrderBook::tryExecute(Order& order)
                               return priceOrderInQueue <= priceOrderCome;
                           });
     }
-    else
+    else  // Order::Type::Ask
     {
         return tryExecute(order, _bidQueue,
                           [](Order::PriceType priceOrderInQueue, Order::PriceType priceOrderCome)
@@ -135,5 +138,94 @@ Order OrderBook::getOrderById(Order::IdType id) const
 {
     auto orderLink = findOrder(id);
     return *(orderLink->second);
+}
+
+OrderBook::PriceAggregator::PriceAggregator(OrderContainerIterator startPos,
+                                            OrderContainerIterator endPos)
+    : _curPos(startPos)
+    , _endPos(endPos)
+{}
+
+std::pair<bool, OrderBook::PricePosition> OrderBook::PriceAggregator::nextPrice()
+{
+    PricePosition pricePosition;
+
+    if (_curPos == _endPos)  // End of container
+        return std::make_pair(false, pricePosition);
+
+    pricePosition.price    = _curPos->getPrice();
+    pricePosition.quantity = _curPos->getQuantity();
+
+    while (++_curPos != _endPos && _curPos->getPrice() == pricePosition.price)
+        pricePosition.quantity += _curPos->getQuantity();
+
+    return std::make_pair(true, pricePosition);
+}
+
+OrderBook::PriceAggregator OrderBook::makePriceAggregator(Order::Type type) const
+{
+    if (type == Order::Type::Ask)
+        return { _askQueue.cbegin(), _askQueue.cend() };
+    else  // Order::Type::Bid
+        return { _bidQueue.cbegin(), _bidQueue.cend() };
+}
+
+void outOrdersJson(std::ostream&               outStr,
+                   int                         orderLimit,
+                   OrderBook::PriceAggregator& aggregator)
+{
+    bool nextIteration = false;
+
+    while (orderLimit < 0 || orderLimit-- != 0)
+    {
+        auto pricePositionPair = aggregator.nextPrice();
+        if (!pricePositionPair.first)
+            break;  // No more prices in the queue
+        if (nextIteration)
+            outStr << ',' << std::endl;
+        outStr  << std::setw(8) << ' '
+                << '{' << std::endl
+                << std::setw(12) << ' '
+                << "\"price\": " << pricePositionPair.second.price << ',' << std::endl
+                << std::setw(12) << ' '
+                << "\"quantity\": " << pricePositionPair.second.quantity << std::endl
+                << std::setw(8) << ' '
+                << '}';
+        nextIteration = true;
+    }
+}
+
+void OrderBook::orderbookInfoJsonInternal(std::ostream& outStr,
+                                          int           bidOrderLimit,
+                                          int           askOrderLimit) const
+{
+    outStr << R"V(    "asks": [
+)V";
+    {
+        auto aggregator = makePriceAggregator(Order::Type::Ask);
+        outOrdersJson(outStr, askOrderLimit, aggregator);
+    }
+    outStr  << std::endl
+            << std::setw(4) << ' '
+            << "]," << std::endl
+            << std::setw(4) << ' '
+            << "\"bids\": [" << std::endl;
+    {
+        auto aggregator = makePriceAggregator(Order::Type::Bid);
+        outOrdersJson(outStr, bidOrderLimit, aggregator);
+    }
+    outStr  << std::endl
+            << std::setw(4) << ' '
+            << ']' << std::endl;
+}
+
+std::string OrderBook::orderbookInfoJson(int bidOrderLimit,
+                                         int askOrderLimit) const
+{
+    std::ostringstream outStr;
+    outStr << '{' << std::endl;
+    orderbookInfoJsonInternal(outStr, bidOrderLimit, askOrderLimit);
+    outStr << '}' << std::endl;
+    return outStr.str();
 }
 

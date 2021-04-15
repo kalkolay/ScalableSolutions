@@ -15,7 +15,7 @@ public:
     using OrderCallback = std::function<void (Order)>;
 
     /**
-     *  @brief Explicitly create OrderBook
+     *  @brief Explicitly create order book
      *
      *  @param executedOrderCallback std::function which accepts executed orders
      *  @param canceledOrderCallback std::function which accepts canceled orders
@@ -26,7 +26,7 @@ public:
                        OrderCallback canceledOrderCallback = nullptr);
 
     /**
-     *  @brief Add order to OrderBook
+     *  @brief Add order to order book
      *
      *  @param type     Order type
      *  @param price    Order price
@@ -58,7 +58,21 @@ public:
      */
     Order getOrderById(Order::IdType id) const;
 
+    /**
+     *  @brief Order book information in JSON format
+     *
+     *  @param bidOrderLimit Max number bid positions
+     *  @param askOrderLimit Max number ask positions
+     *
+     *  @note -1 means output all bid positions
+     */
+    std::string orderbookInfoJson(int bidOrderLimit = -1,
+                                  int askOrderLimit = -1) const;
+
 private:
+
+    // TODO: Add PImpl
+
     struct AskOrderSort
     {
         bool operator ()(const Order& o1,
@@ -82,20 +96,20 @@ private:
     using OrderContainerIterator = std::set<Order>::iterator;
     using IdOrderLink            = std::map<Order::IdType, OrderContainerIterator>;
 
-    OrderContainerAsk _askQueue;
-    OrderContainerBid _bidQueue;
-    IdOrderLink _idOrderLink;
-    OrderCallback _executedOrderCallback;
-    OrderCallback _canceledOrderCallback;
+    OrderContainerAsk   _askQueue;
+    OrderContainerBid   _bidQueue;
+    IdOrderLink         _idOrderLink;
+    OrderCallback       _executedOrderCallback;
+    OrderCallback       _canceledOrderCallback;
 
-    bool _haveTransactionsStarted;
-    Order::PriceType _lastPrice;
+    bool                _haveTransactionsStarted;
+    Order::PriceType    _lastPrice;
     Order::QuantityType _lastQuantity;
 
     void sendExecutedOrder(Order order);
 
     /**
-     *  @brief Return true if incoming order fully executed
+     *  @return true if incoming order fully executed
      *
      *  @overload
      */
@@ -110,6 +124,38 @@ private:
     bool checkConsistency() const;
 
     IdOrderLink::const_iterator findOrder(Order::IdType id) const;
+
+    struct PricePosition
+    {
+        Order::PriceType    price    = 0;
+        Order::QuantityType quantity = 0;
+    };
+
+    class PriceAggregator
+    {
+    public:
+        PriceAggregator(OrderContainerIterator startPos,
+                        OrderContainerIterator endPos);
+        std::pair<bool, PricePosition> nextPrice();
+    private:
+        OrderContainerIterator       _curPos;
+        const OrderContainerIterator _endPos;
+    };
+
+    PriceAggregator makePriceAggregator(Order::Type type) const;
+
+    friend void outOrdersJson(std::ostream&               outStr,
+                              int                         orderLimit,
+                              OrderBook::PriceAggregator& aggregator);
+
+    /**
+     *  @brief Helper method for retrieving order book information in JSON format
+     *
+     *  @see orderbookInfoJson
+     */
+    void orderbookInfoJsonInternal(std::ostream& outStr,
+                                   int           bidOrderLimit,
+                                   int           askOrderLimit) const;
 
 
 };

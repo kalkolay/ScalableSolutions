@@ -1,7 +1,6 @@
 #include "TestBook.h"
 
 #include <array>
-#include <utility>
 
 OrderBook testOrderBook(OrderBook::OrderCallback executedOrderCallback,
                         OrderBook::OrderCallback canceledOrderCallback)
