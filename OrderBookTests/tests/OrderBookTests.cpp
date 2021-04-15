@@ -1,13 +1,17 @@
 #include <gtest/gtest.h>
 #include <OrderBook.h>
 
-TEST(OrderBookTests, OrderBookEmptyByDefault)  // NOLINT
+TEST(OrderBookTests, EmptyTest)  // NOLINT
 {
-    OrderBook book;
-    EXPECT_TRUE( book.isEmpty() );
+    OrderBook orderBook;
+    SUCCEED();
 }
 
 
+
+/**
+ *  @brief Run all tests
+ */
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

@@ -15,52 +15,38 @@ public:
     using PriceType    = int32_t;
     using QuantityType = uint32_t;
 
-    Order(Type         type,
-          PriceType    price,
-          QuantityType quantity)
-        : _type    (type)
-        , _price   (price)
-        , _quantity(quantity)
-        , _id      (++next_id)
-    {}
+    Order(Type, PriceType, QuantityType);
 
-    [[nodiscard]] Type         getType    () const { return _type; }
-    [[nodiscard]] PriceType    getPrice   () const { return _price; }
+    [[nodiscard]] Type         getType    () const { return _type;     }
+    [[nodiscard]] PriceType    getPrice   () const { return _price;    }
     [[nodiscard]] QuantityType getQuantity() const { return _quantity; }
-    [[nodiscard]] IdType       getId      () const { return _id; }
+    [[nodiscard]] IdType       getId      () const { return _id;       }
 
-    static Order makeZeroOrder()  // create explicitly zero order to save some order from split
-    {
-        return {};
-    }
+    /**
+     *  @brief Create explicitly zero order to save some order from split
+     */
+    static Order makeZeroOrder() { return {}; }
 
-    /// Return order with the same id, price, type but split original _quantity
-    /// by new quantity and rest which saved in current order
+    /**
+     *  @brief Return order with the same ID, price, type but split original _quantity
+     *         by new quantity and rest which saved in current order
+     */
     Order split(QuantityType quantity,
-                PriceType    executionPrice)
-    {
-        assert(quantity <= _quantity);
-        assert( _type == Type::Ask && executionPrice >= _price ||
-                _type == Type::Bid && executionPrice <= _price);
-
-        Order newOrder = *this;
-        newOrder._quantity = quantity;
-        newOrder._price    = executionPrice;
-        _quantity -= quantity;
-        return newOrder;
-    }
+                PriceType    executionPrice);
 
 private:
+    Type         _type;
     IdType       _id;
     PriceType    _price;
     QuantityType _quantity;
-    Type         _type;
 
-    static IdType next_id;  // id generator for new order
+    /**
+     *  @brief ID generator for new order
+     */
+    static IdType _nextId;
 
-    Order()
-        : _price   (0)
-        , _quantity(0)
-        , _id      (0)
-    {}
+    /**
+     *  @note Forbid creating objects via default constructor
+     */
+    Order();
 };
