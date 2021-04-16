@@ -5,6 +5,7 @@
 #include <set>
 
 #include "Order.h"
+#include "NotFoundException.h"
 
 class OrderBook
 {
@@ -69,9 +70,20 @@ public:
     std::string orderbookInfoJson(int bidOrderLimit = -1,
                                   int askOrderLimit = -1) const;
 
-private:
+    /**
+     *  @brief Market data L1 in JSON format
+     */
+    std::string marketData1Json() const;
 
+    /**
+     *  @brief Market data L2 in JSON format
+     */
+    std::string marketData2Json(int bidOrderLimit = -1,
+                                int askOrderLimit = -1) const;
+
+private:
     // TODO: Add PImpl
+    // TODO: Add release on Git & Cmake
 
     struct AskOrderSort
     {
@@ -106,6 +118,11 @@ private:
     Order::PriceType    _lastPrice;
     Order::QuantityType _lastQuantity;
 
+    /**
+     *  @brief Helper method, sets _executedOrderCallback (if it is not empty) with given order
+     *
+     *  @see _executedOrderCallback
+     */
     void sendExecutedOrder(Order order);
 
     /**
@@ -123,6 +140,9 @@ private:
 
     bool checkConsistency() const;
 
+    /**
+     *  @throws NotFoundException Thrown in case the order cannot be found
+     */
     IdOrderLink::const_iterator findOrder(Order::IdType id) const;
 
     struct PricePosition
@@ -144,6 +164,9 @@ private:
 
     PriceAggregator makePriceAggregator(Order::Type type) const;
 
+    /**
+     *  @brief Prints using outStr orderLimit orders in JSON format by aggregator
+     */
     friend void outOrdersJson(std::ostream&               outStr,
                               int                         orderLimit,
                               OrderBook::PriceAggregator& aggregator);
@@ -157,5 +180,17 @@ private:
                                    int           bidOrderLimit,
                                    int           askOrderLimit) const;
 
+    friend void outputBestAskJson(std::ostream&                                    outStr,
+                                  const std::pair<bool, OrderBook::PricePosition>& askPricePositionPair);
+    friend void outputBestBidJson(std::ostream&                                    outStr,
+                                  const std::pair<bool, OrderBook::PricePosition>& bidPricePositionPair);
 
+    /**
+     *  @brief Helper method for retrieving market data snapshot in JSON format
+     *
+     *  @see marketData1Json
+     *  @see marketData2Json
+     */
+    void marketData1JsonInternal(std::ostream& outStr,
+                                 bool&         nextComma) const;
 };

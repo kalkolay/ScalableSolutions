@@ -1,5 +1,4 @@
 #include "OrderBook.h"
-#include "NotFoundException.h"
 
 #include <iomanip>
 #include <sstream>
@@ -229,3 +228,80 @@ std::string OrderBook::orderbookInfoJson(int bidOrderLimit,
     return outStr.str();
 }
 
+void outputBestAskJson(std::ostream&                                    outStr,
+                       const std::pair<bool, OrderBook::PricePosition>& askPricePositionPair)
+{
+    if (askPricePositionPair.first)
+    {
+        const auto& pricePosition = askPricePositionPair.second;
+        outStr  << R"V(
+    "best_ask": {
+        "price": )V"
+                << pricePosition.price << R"V(,
+        "quantity": )V"
+                << pricePosition.quantity << R"V(
+    })V";
+    }
+}
+
+void outputBestBidJson(std::ostream&                                    outStr,
+                       const std::pair<bool, OrderBook::PricePosition>& bidPricePositionPair)
+{
+    if (bidPricePositionPair.first)
+    {
+        const auto& pricePosition = bidPricePositionPair.second;
+        outStr  << R"V(
+    "best_bid": {
+        "price": )V"
+                << pricePosition.price << R"V(,
+        "quantity": )V"
+                << pricePosition.quantity << R"V(
+    })V";
+    }
+}
+
+void OrderBook::marketData1JsonInternal(std::ostream& outStr,
+                                        bool&         nextComma) const
+{
+    auto askPricePositionPair = makePriceAggregator(Order::Type::Ask).nextPrice();
+    outputBestAskJson(outStr, askPricePositionPair);
+    nextComma = askPricePositionPair.first;
+    auto bidPricePositionPair = makePriceAggregator(Order::Type::Bid).nextPrice();
+    if (nextComma && bidPricePositionPair.first)
+        outStr << ',';
+    outputBestBidJson(outStr, bidPricePositionPair);
+
+    if (_haveTransactionsStarted)
+    {
+        if (nextComma)
+            outStr << ',';
+        outStr << R"V(
+    "last_transaction": {
+        "price": )V"    << _lastPrice    << R"V(,
+        "quantity": )V" << _lastQuantity << R"V(
+    })V";
+    }
+}
+
+std::string OrderBook::marketData1Json() const
+{
+    std::ostringstream outStr;
+    outStr << '{';
+    bool nextComma = false;
+    marketData1JsonInternal(outStr, nextComma);
+    outStr << std::endl << '}' << std::endl;
+    return outStr.str();
+}
+
+std::string OrderBook::marketData2Json(int bidOrderLimit,
+                                       int askOrderLimit) const
+{
+    std::ostringstream outStr;
+    outStr << '{';
+    bool nextComma = false;
+    marketData1JsonInternal(outStr, nextComma);
+    outStr << ',' << std::endl;
+    orderbookInfoJsonInternal(outStr, bidOrderLimit, askOrderLimit);
+    outStr << '}' << std::endl;
+    return outStr.str();
+}
