@@ -23,9 +23,9 @@ public:
     [[nodiscard]] IdType       getId      () const { return _id;       }
 
     /**
-     *  @brief Create explicitly zero order to save some order from split
+     *  @brief Create explicitly empty order to save an order from split
      */
-    static Order makeZeroOrder() { return {}; }
+    static Order makeEmptyOrder() { return {}; }
 
     /**
      *  @brief Return order with the same ID, price, type but split original _quantity

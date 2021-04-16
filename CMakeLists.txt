@@ -1,12 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
-project(ScalableSolutions)
+project(ScalableSolutions VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 14)
-
-find_package(Boost REQUIRED)
-if (NOT Boost_FOUND)
-    message(FATAL_ERROR "Could not find Boost!")
-endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 include_directories(OrderBook)
 

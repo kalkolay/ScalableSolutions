@@ -6,8 +6,8 @@
 TEST(OrderBookTests, OrderBookInfo)  // NOLINT
 {
     OrderBook orderBook = testOrderBook();
-    auto orderbookInfoJson = orderBook.orderbookInfoJson();
-    auto res = R"V({
+    auto orderBookInfoJson = orderBook.getOrderBookInfoJson();
+    auto result = R"V({
     "asks": [
         {
             "price": 1001,
@@ -38,14 +38,14 @@ TEST(OrderBookTests, OrderBookInfo)  // NOLINT
     ]
 }
 )V";
-    ASSERT_STREQ(orderbookInfoJson.c_str(), res);
+    ASSERT_STREQ(orderBookInfoJson.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderBookInfoLimit)  // NOLINT
 {
     OrderBook orderBook = testOrderBook();
-    auto orderbookInfoJson = orderBook.orderbookInfoJson(2,1);
-    auto res = R"V({
+    auto orderBookInfoJson = orderBook.getOrderBookInfoJson(2, 1);
+    auto result = R"V({
     "asks": [
         {
             "price": 1001,
@@ -64,15 +64,15 @@ TEST(OrderBookTests, OrderBookInfoLimit)  // NOLINT
     ]
 }
 )V";
-    ASSERT_STREQ(orderbookInfoJson.c_str(), res);
+    ASSERT_STREQ(orderBookInfoJson.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderAddBidInfo)  // NOLINT
 {
     OrderBook orderBook = testOrderBook();
     orderBook.addOrder(Order::Type::Bid, 1000, 300);
-    auto orderbookInfoJson = orderBook.orderbookInfoJson();
-    auto res = R"V({
+    auto orderBookInfoJson = orderBook.getOrderBookInfoJson();
+    auto result = R"V({
     "asks": [
         {
             "price": 1001,
@@ -107,15 +107,15 @@ TEST(OrderBookTests, OrderAddBidInfo)  // NOLINT
     ]
 }
 )V";
-    ASSERT_STREQ(orderbookInfoJson.c_str(), res);
+    ASSERT_STREQ(orderBookInfoJson.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderAddAskInfo)  // NOLINT
 {
     OrderBook orderBook = testOrderBook();
     orderBook.addOrder(Order::Type::Ask, 1000, 300);
-    auto orderbookInfoJson = orderBook.orderbookInfoJson();
-    auto res = R"V({
+    auto orderBookInfoJson = orderBook.getOrderBookInfoJson();
+    auto result = R"V({
     "asks": [
         {
             "price": 1000,
@@ -150,7 +150,7 @@ TEST(OrderBookTests, OrderAddAskInfo)  // NOLINT
     ]
 }
 )V";
-    ASSERT_STREQ(orderbookInfoJson.c_str(), res);
+    ASSERT_STREQ(orderBookInfoJson.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderExecutionBidBigPriceInfo)  // NOLINT
@@ -184,8 +184,8 @@ TEST(OrderBookTests, OrderExecutionBidBigPriceInfo)  // NOLINT
     ]
 }
 )V";
-    auto orderbookInfoJson = orderBook.orderbookInfoJson();
-    ASSERT_STREQ(orderbookInfoJson.c_str(), result);
+    auto orderBookInfoJson = orderBook.getOrderBookInfoJson();
+    ASSERT_STREQ(orderBookInfoJson.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderExecutionBidSmallPriceInfo)  // NOLINT
@@ -223,8 +223,8 @@ TEST(OrderBookTests, OrderExecutionBidSmallPriceInfo)  // NOLINT
     ]
 }
 )V";
-    auto orderbookInfoJson = orderBook.orderbookInfoJson();
-    ASSERT_STREQ(orderbookInfoJson.c_str(), result);
+    auto orderBookInfoJson = orderBook.getOrderBookInfoJson();
+    ASSERT_STREQ(orderBookInfoJson.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderExecutionAskBigPriceInfo)  // NOLINT
@@ -258,8 +258,8 @@ TEST(OrderBookTests, OrderExecutionAskBigPriceInfo)  // NOLINT
     ]
 }
 )V";
-    auto orderbookInfoJson = orderBook.orderbookInfoJson();
-    ASSERT_STREQ(orderbookInfoJson.c_str(), result);
+    auto orderBookInfoJson = orderBook.getOrderBookInfoJson();
+    ASSERT_STREQ(orderBookInfoJson.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderExecutionAskSmallPriceInfo)  // NOLINT
@@ -297,10 +297,9 @@ TEST(OrderBookTests, OrderExecutionAskSmallPriceInfo)  // NOLINT
     ]
 }
 )V";
-    auto orderbookInfoJson = orderBook.orderbookInfoJson();
-    ASSERT_STREQ(orderbookInfoJson.c_str(), result);
+    auto orderBookInfoJson = orderBook.getOrderBookInfoJson();
+    ASSERT_STREQ(orderBookInfoJson.c_str(), result);
 }
-
 
 TEST(OrderBookTests, OrderExecutionBidBigPriceBigQuantityInfo)  // NOLINT
 {
@@ -330,8 +329,8 @@ TEST(OrderBookTests, OrderExecutionBidBigPriceBigQuantityInfo)  // NOLINT
     ]
 }
 )V";
-    auto orderbookInfoJson = orderBook.orderbookInfoJson();
-    ASSERT_STREQ(orderbookInfoJson.c_str(), result);
+    auto orderBookInfoJson = orderBook.getOrderBookInfoJson();
+    ASSERT_STREQ(orderBookInfoJson.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderExecutionAskBigPriceBigQuantityInfo)  // NOLINT
@@ -362,6 +361,6 @@ TEST(OrderBookTests, OrderExecutionAskBigPriceBigQuantityInfo)  // NOLINT
     ]
 }
 )V";
-    auto orderbookInfoJson = orderBook.orderbookInfoJson();
-    ASSERT_STREQ(orderbookInfoJson.c_str(), result);
+    auto orderBookInfoJson = orderBook.getOrderBookInfoJson();
+    ASSERT_STREQ(orderBookInfoJson.c_str(), result);
 }

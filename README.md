@@ -25,14 +25,16 @@ Functional requirements:
 ## How to build
 
 This project is developed on C++14 (*clang-1200.0.32.29*) for macOS/Linux.\
-It requires [Boost libraries](https://www.boost.org) and uses [GoogleTest](https://github.com/google/googletest.git) for unit testing and [Git](https://git-scm.com) for VCS.
+It requires [CMake 3.5+](https://cmake.org) for building and uses [GoogleTest](https://github.com/google/googletest.git) for unit testing and [Git](https://git-scm.com) for VCS.
 
 To build & run the test assignment, execute the following commands from *cmake-build-debug* folder:
 ```shell
-# 0. Install Boost via any package manager.
-# E.g. "sudo apt-get install libboost-all-dev" on Linux
-# or "brew install boost" on macOS
 cmake -G "Unix Makefiles" .. && make    # 1. build
 ./OrderBookTests/tests/RunTests         # 2. run tests
 ```
-P.S. [CMake 3.5+](https://cmake.org) is required for building the project.
+
+## Orders matching logic
+
+The following rules are used for orders matching:
+- If a bid order comes in at a price greater or equal than the lowest ask price, then we execute order by ask price. The buyer buys at his proposed price or less. The seller sells at his proposed price.
+- Either if an ask order comes in at a price lower or equal to the highest bid price in the order book, then the order is executed by bid price. The seller sells at his proposed price or more. The buyer buys at his proposed price.

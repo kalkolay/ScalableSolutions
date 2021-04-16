@@ -53,8 +53,8 @@ TEST(OrderBookTests, OrderCancel)  // NOLINT
 TEST(OrderBookTests, OrderBookMarketData2)  // NOLINT
 {
     OrderBook orderBook = testOrderBook();
-    auto marketData2Json = orderBook.marketData2Json();
-    auto res = R"V({
+    auto marketData2Json = orderBook.marketDataL2JsonSnapshot();
+    auto result = R"V({
     "best_ask": {
         "price": 1001,
         "quantity": 30
@@ -93,15 +93,15 @@ TEST(OrderBookTests, OrderBookMarketData2)  // NOLINT
     ]
 }
 )V";
-    ASSERT_STREQ(marketData2Json.c_str(), res);
+    ASSERT_STREQ(marketData2Json.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderAddBid)  // NOLINT
 {
     OrderBook orderBook = testOrderBook();
     orderBook.addOrder(Order::Type::Bid, 1000, 300);
-    auto marketData2Json = orderBook.marketData2Json();
-    auto res = R"V({
+    auto marketData2Json = orderBook.marketDataL2JsonSnapshot();
+    auto result = R"V({
     "best_ask": {
         "price": 1001,
         "quantity": 30
@@ -144,15 +144,15 @@ TEST(OrderBookTests, OrderAddBid)  // NOLINT
     ]
 }
 )V";
-    ASSERT_STREQ(marketData2Json.c_str(), res);
+    ASSERT_STREQ(marketData2Json.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderAddAsk)  // NOLINT
 {
     OrderBook orderBook = testOrderBook();
     orderBook.addOrder(Order::Type::Ask, 1000, 300);
-    auto marketData2Json = orderBook.marketData2Json();
-    auto res = R"V({
+    auto marketData2Json = orderBook.marketDataL2JsonSnapshot();
+    auto result = R"V({
     "best_ask": {
         "price": 1000,
         "quantity": 300
@@ -195,7 +195,7 @@ TEST(OrderBookTests, OrderAddAsk)  // NOLINT
     ]
 }
 )V";
-    ASSERT_STREQ(marketData2Json.c_str(), res);
+    ASSERT_STREQ(marketData2Json.c_str(), result);
 }
 
 TEST(OrderBookTests, OrderExecutionBidBigPriceMarket1)  // NOLINT
@@ -217,7 +217,7 @@ TEST(OrderBookTests, OrderExecutionBidBigPriceMarket1)  // NOLINT
     }
 }
 )V";
-    auto marketData1Json = orderBook.marketData1Json();
+    auto marketData1Json = orderBook.marketDataL1JsonSnapshot();
     ASSERT_STREQ(marketData1Json.c_str(), result);
 }
 
@@ -229,7 +229,7 @@ TEST(OrderBookTests, OrderExecutionBidBigPriceExecutedTransactions)  // NOLINT
                 executedOrders.push_back(order);
             });
     orderBook.addOrder(Order::Type::Bid, 1002, 45);
-    constexpr int size = 6;
+    static constexpr int size = 6;
     ASSERT_EQ(executedOrders.size(), size);
     std::array<Data, size> results = {
             Data{Order::Type::Ask, 1001, 20},
@@ -292,7 +292,7 @@ TEST(OrderBookTests, OrderExecutionBidBigPrice)  // NOLINT
     ]
 }
 )V";
-    auto marketData2Json = orderBook.marketData2Json();
+    auto marketData2Json = orderBook.marketDataL2JsonSnapshot();
     ASSERT_STREQ(marketData2Json.c_str(), result);
 }
 
@@ -343,7 +343,7 @@ TEST(OrderBookTests, OrderExecutionBidSmallPrice)  // NOLINT
     ]
 }
 )V";
-    auto marketData2Json = orderBook.marketData2Json();
+    auto marketData2Json = orderBook.marketDataL2JsonSnapshot();
     ASSERT_STREQ(marketData2Json.c_str(), result);
 }
 
@@ -390,7 +390,7 @@ TEST(OrderBookTests, OrderExecutionAskBigPrice)  // NOLINT
     ]
 }
 )V";
-    auto marketData2Json = orderBook.marketData2Json();
+    auto marketData2Json = orderBook.marketDataL2JsonSnapshot();
     ASSERT_STREQ(marketData2Json.c_str(), result);
 }
 
@@ -441,10 +441,9 @@ TEST(OrderBookTests, OrderExecutionAskSmallPrice)  // NOLINT
     ]
 }
 )V";
-    auto marketData2Json = orderBook.marketData2Json();
+    auto marketData2Json = orderBook.marketDataL2JsonSnapshot();
     ASSERT_STREQ(marketData2Json.c_str(), result);
 }
-
 
 TEST(OrderBookTests, OrderExecutionBidBigPriceBigQuantity)  // NOLINT
 {
@@ -482,9 +481,10 @@ TEST(OrderBookTests, OrderExecutionBidBigPriceBigQuantity)  // NOLINT
     ]
 }
 )V";
-    auto marketData2Json = orderBook.marketData2Json();
+    auto marketData2Json = orderBook.marketDataL2JsonSnapshot();
     ASSERT_STREQ(marketData2Json.c_str(), result);
 }
+
 
 /**
  *  @brief Run all tests

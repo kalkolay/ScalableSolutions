@@ -2,7 +2,6 @@
 
 #include <exception>
 #include <string>
-#include <utility>
 
 class NotFoundException : public std::exception
 {

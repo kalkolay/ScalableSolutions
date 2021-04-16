@@ -21,7 +21,7 @@ public:
      *  @param executedOrderCallback std::function which accepts executed orders
      *  @param canceledOrderCallback std::function which accepts canceled orders
      *
-     *  @note Parameters may be nullptr
+     *  @details Parameters may be nullptr
      */
     explicit OrderBook(OrderCallback executedOrderCallback = nullptr,
                        OrderCallback canceledOrderCallback = nullptr);
@@ -33,7 +33,7 @@ public:
      *  @param price    Order price
      *  @param quantity Order quantity
      *
-     *  @note Type can be either Order::Type::Bid or Order::Type::Ask
+     *  @details Type can be either Order::Type::Bid or Order::Type::Ask
      */
     Order::IdType addOrder(Order::Type         type,
                            Order::PriceType    price,
@@ -51,7 +51,7 @@ public:
     /**
      *  @brief Get order copy
      *
-     *  @param id Order id
+     *  @param id Order ID
      *
      *  @throws NotFoundException Thrown in case the order cannot be found
      *
@@ -65,26 +65,23 @@ public:
      *  @param bidOrderLimit Max number bid positions
      *  @param askOrderLimit Max number ask positions
      *
-     *  @note -1 means output all bid positions
+     *  @details -1 means output all bid positions
      */
-    std::string orderbookInfoJson(int bidOrderLimit = -1,
-                                  int askOrderLimit = -1) const;
+    std::string getOrderBookInfoJson(int bidOrderLimit = -1,
+                                     int askOrderLimit = -1) const;
 
     /**
      *  @brief Market data L1 in JSON format
      */
-    std::string marketData1Json() const;
+    std::string marketDataL1JsonSnapshot() const;
 
     /**
      *  @brief Market data L2 in JSON format
      */
-    std::string marketData2Json(int bidOrderLimit = -1,
-                                int askOrderLimit = -1) const;
+    std::string marketDataL2JsonSnapshot(int bidOrderLimit = -1,
+                                         int askOrderLimit = -1) const;
 
 private:
-    // TODO: Add PImpl
-    // TODO: Add release on Git & Cmake
-
     struct AskOrderSort
     {
         bool operator ()(const Order& o1,
@@ -167,16 +164,16 @@ private:
     /**
      *  @brief Prints using outStr orderLimit orders in JSON format by aggregator
      */
-    friend void outOrdersJson(std::ostream&               outStr,
-                              int                         orderLimit,
-                              OrderBook::PriceAggregator& aggregator);
+    friend void outputOrdersJson(std::ostream&               outStr,
+                                 int                         orderLimit,
+                                 OrderBook::PriceAggregator& aggregator);
 
     /**
      *  @brief Helper method for retrieving order book information in JSON format
      *
-     *  @see orderbookInfoJson
+     *  @see getOrderBookInfoJson
      */
-    void orderbookInfoJsonInternal(std::ostream& outStr,
+    void orderBookInfoJsonInternal(std::ostream& outStr,
                                    int           bidOrderLimit,
                                    int           askOrderLimit) const;
 
@@ -188,9 +185,9 @@ private:
     /**
      *  @brief Helper method for retrieving market data snapshot in JSON format
      *
-     *  @see marketData1Json
-     *  @see marketData2Json
+     *  @see marketDataL1JsonSnapshot
+     *  @see marketDataL2JsonSnapshot
      */
-    void marketData1JsonInternal(std::ostream& outStr,
-                                 bool&         nextComma) const;
+    void marketDataL1JsonInternal(std::ostream& outStr,
+                                  bool&         nextComma) const;
 };

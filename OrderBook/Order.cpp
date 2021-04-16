@@ -1,9 +1,9 @@
 #include "Order.h"
 
 Order::Order()
-        : _price   (0)
-        , _quantity(0)
-        , _id      (0)
+    : _price   (0)
+    , _quantity(0)
+    , _id      (0)
 {}
 
 Order::Order(Type         type,

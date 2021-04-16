@@ -7,11 +7,11 @@ uint64_t Order::_nextId = 0;
 
 OrderBook::OrderBook(OrderCallback executedOrderCallback,
                      OrderCallback canceledOrderCallback)
-    : _executedOrderCallback ( std::move(executedOrderCallback) )
-    , _canceledOrderCallback ( std::move(canceledOrderCallback) )
-    , _haveTransactionsStarted(false )
-    , _lastPrice             ( 0 )
-    , _lastQuantity          ( 0 )
+    : _executedOrderCallback  ( std::move(executedOrderCallback) )
+    , _canceledOrderCallback  ( std::move(canceledOrderCallback) )
+    , _haveTransactionsStarted( false )
+    , _lastPrice              ( 0 )
+    , _lastQuantity           ( 0 )
 {}
 
 void OrderBook::sendExecutedOrder(Order order)
@@ -25,7 +25,7 @@ bool OrderBook::tryExecute(Order&                      order,
                            Container&                  container,
                            const CompareOrderFunction& possibleExecution)
 {
-    Order containerOrder = Order::makeZeroOrder();
+    Order containerOrder = Order::makeEmptyOrder();
 
     for (auto it = container.begin();
          it != container.end() && order.getQuantity() > 0 &&
@@ -169,9 +169,9 @@ OrderBook::PriceAggregator OrderBook::makePriceAggregator(Order::Type type) cons
         return { _bidQueue.cbegin(), _bidQueue.cend() };
 }
 
-void outOrdersJson(std::ostream&               outStr,
-                   int                         orderLimit,
-                   OrderBook::PriceAggregator& aggregator)
+void outputOrdersJson(std::ostream&               outStr,
+                      int                         orderLimit,
+                      OrderBook::PriceAggregator& aggregator)
 {
     bool nextIteration = false;
 
@@ -194,7 +194,7 @@ void outOrdersJson(std::ostream&               outStr,
     }
 }
 
-void OrderBook::orderbookInfoJsonInternal(std::ostream& outStr,
+void OrderBook::orderBookInfoJsonInternal(std::ostream& outStr,
                                           int           bidOrderLimit,
                                           int           askOrderLimit) const
 {
@@ -202,7 +202,7 @@ void OrderBook::orderbookInfoJsonInternal(std::ostream& outStr,
 )V";
     {
         auto aggregator = makePriceAggregator(Order::Type::Ask);
-        outOrdersJson(outStr, askOrderLimit, aggregator);
+        outputOrdersJson(outStr, askOrderLimit, aggregator);
     }
     outStr  << std::endl
             << std::setw(4) << ' '
@@ -211,19 +211,19 @@ void OrderBook::orderbookInfoJsonInternal(std::ostream& outStr,
             << "\"bids\": [" << std::endl;
     {
         auto aggregator = makePriceAggregator(Order::Type::Bid);
-        outOrdersJson(outStr, bidOrderLimit, aggregator);
+        outputOrdersJson(outStr, bidOrderLimit, aggregator);
     }
     outStr  << std::endl
             << std::setw(4) << ' '
             << ']' << std::endl;
 }
 
-std::string OrderBook::orderbookInfoJson(int bidOrderLimit,
-                                         int askOrderLimit) const
+std::string OrderBook::getOrderBookInfoJson(int bidOrderLimit,
+                                            int askOrderLimit) const
 {
     std::ostringstream outStr;
     outStr << '{' << std::endl;
-    orderbookInfoJsonInternal(outStr, bidOrderLimit, askOrderLimit);
+    orderBookInfoJsonInternal(outStr, bidOrderLimit, askOrderLimit);
     outStr << '}' << std::endl;
     return outStr.str();
 }
@@ -260,8 +260,8 @@ void outputBestBidJson(std::ostream&                                    outStr,
     }
 }
 
-void OrderBook::marketData1JsonInternal(std::ostream& outStr,
-                                        bool&         nextComma) const
+void OrderBook::marketDataL1JsonInternal(std::ostream& outStr,
+                                         bool&         nextComma) const
 {
     auto askPricePositionPair = makePriceAggregator(Order::Type::Ask).nextPrice();
     outputBestAskJson(outStr, askPricePositionPair);
@@ -283,25 +283,25 @@ void OrderBook::marketData1JsonInternal(std::ostream& outStr,
     }
 }
 
-std::string OrderBook::marketData1Json() const
+std::string OrderBook::marketDataL1JsonSnapshot() const
 {
     std::ostringstream outStr;
     outStr << '{';
     bool nextComma = false;
-    marketData1JsonInternal(outStr, nextComma);
+    marketDataL1JsonInternal(outStr, nextComma);
     outStr << std::endl << '}' << std::endl;
     return outStr.str();
 }
 
-std::string OrderBook::marketData2Json(int bidOrderLimit,
-                                       int askOrderLimit) const
+std::string OrderBook::marketDataL2JsonSnapshot(int bidOrderLimit,
+                                                int askOrderLimit) const
 {
     std::ostringstream outStr;
     outStr << '{';
     bool nextComma = false;
-    marketData1JsonInternal(outStr, nextComma);
+    marketDataL1JsonInternal(outStr, nextComma);
     outStr << ',' << std::endl;
-    orderbookInfoJsonInternal(outStr, bidOrderLimit, askOrderLimit);
+    orderBookInfoJsonInternal(outStr, bidOrderLimit, askOrderLimit);
     outStr << '}' << std::endl;
     return outStr.str();
 }

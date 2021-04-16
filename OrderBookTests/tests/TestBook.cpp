@@ -5,7 +5,8 @@
 OrderBook testOrderBook(OrderBook::OrderCallback executedOrderCallback,
                         OrderBook::OrderCallback canceledOrderCallback)
 {
-    OrderBook orderBook( std::move(executedOrderCallback), std::move(canceledOrderCallback) );
+    OrderBook orderBook( std::move(executedOrderCallback),
+                         std::move(canceledOrderCallback) );
     std::array<Data, 10> orders =
             {
                     Data{Order::Type::Ask, 1003, 50},
